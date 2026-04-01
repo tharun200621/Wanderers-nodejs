@@ -55,33 +55,22 @@
               novalidate
               class="needs-validation">
 
-            <!-- <div class="mb-3 mt-3">
-                <label for="rating" class="form-label">Rating</label>
-                <input type="range"
-                       min="1"
-                       max="5"
-                       id="rating"
-                       name="review[rating]"
-                       class="form-range">
-            </div> -->
             <div class="mb-3 mt-3">
-            <label for="rating" class="form-label">Rating</label>
+                <label for="rating" class="form-label">Rating</label>
                 <fieldset class="starability-slot">
-                
-  
-  <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
-  <input type="radio" id="first-rate1" name="review[rating]" value="1" />
-  <label for="first-rate1" title="Terrible">1 star</label>
-  <input type="radio" id="first-rate2" name="review[rating]"value="2" />
-  <label for="first-rate2" title="Not good">2 stars</label>
-  <input type="radio" id="first-rate3" name="review[rating]" value="3" />
-  <label for="first-rate3" title="Average">3 stars</label>
-  <input type="radio" id="first-rate4" name="review[rating]"value="4" />
-  <label for="first-rate4" title="Very good">4 stars</label>
-  <input type="radio" id="first-rate5" name="review[rating]" value="5" />
-  <label for="first-rate5" title="Amazing">5 stars</label>
-</fieldset>
-</div>
+                    <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked />
+                    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                    <label for="first-rate1">1 star</label>
+                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                    <label for="first-rate2">2 stars</label>
+                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                    <label for="first-rate3">3 stars</label>
+                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                    <label for="first-rate4">4 stars</label>
+                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                    <label for="first-rate5">5 stars</label>
+                </fieldset>
+            </div>
 
             <div class="mb-3 mt-3">
                 <label for="comment" class="form-label">Comment</label>
@@ -101,33 +90,64 @@
         <hr/>
         <% } %>
 
-        <p><b>All reviews</b></p>
+        <% if (listing.reviews.length > 0) { %>
+            <p><b>All reviews</b></p>
 
-        <div class="row">
-            <% for (review of listing.reviews) { %>
-                <div class="card col-5 ms-3 mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <%= review.author.username %>
-                        </h5>   
-                         <p class="starability-result card-text"  data-rating="<%= review.rating%>"> </p>
-                        <p class="card-text"><%= review.comment %></p>
-                       
-                        
-    
-                        
+            <div class="row">
+                <% for (review of listing.reviews) { %>
+                    <div class="card col-5 ms-3 mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <%= review.author.username %>
+                            </h5>   
+                            <p class="starability-result card-text" data-rating="<%= review.rating%>"></p>
+                            <p class="card-text"><%= review.comment %></p>
+                        </div>
+
+                        <% if (curUser && review.author && curUser._id.equals(review.author._id)) { %>
+                        <form class="mb-3"
+                              method="POST"
+                              action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                            <button class="btn btn-sm btn-dark">Delete</button>
+                        </form>
+                        <% } %>
                     </div>
-
-                    <% if (curUser && review.author && curUser._id.equals(review.author._id)) { %>
-                    <form class="mb-3"
-                          method="POST"
-                          action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
-                        <button class="btn btn-sm btn-dark">Delete</button>
-                    </form>
-                    <% } %>
-
-                </div>
-            <% } %>
-        </div>
+                <% } %>
+            </div>
+        <% } %>
     </div>
+
+    <div class="col-8 offset-3 mb-5">
+    <h4>Where you'll be</h4>
+
+    <% if (listing.geometry && listing.geometry.coordinates.length > 0) { %>
+        <div id="map"></div>
+    <% } else { %>
+        <p class="text-muted">Location unavailable</p>
+    <% } %>
 </div>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const coords = <%- JSON.stringify(listing.geometry?.coordinates || []) %>;
+
+    if (!coords || coords.length === 0) return;
+
+    const lat = coords[1];
+    const lng = coords[0];
+
+    const map = L.map('map').setView([lat, lng], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(`<b><%= listing.title %></b><br><%= listing.location %>`)
+        .openPopup();
+});
+</script>
