@@ -1,6 +1,24 @@
+<style>
+    .btn-search{
+      background-color:#fe424d;
+      color:white;
+      border-radius: 25px;
+      padding:0 1rem 0 1rem;
+    }
+    .btn-search i{
+      display:inline;
+      margin-right: 0.5rem;
+    }
+    .search-inp {
+  border-radius: 25px;
+  padding: 0.5rem 3rem 0.5rem 3rem;
+  font-size: 0.8;
+}
+</style>
+
 <nav class="navbar navbar-expand-md bg-light border-bottom sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/"><i class="fa-regular fa-compass"></i></a>
+    <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i></a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
       data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" 
@@ -10,18 +28,24 @@
 
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       
-      <!-- Left side -->
+     
       <div class="navbar-nav">
-        <a class="nav-link active" href="/">Home</a>
-        <a class="nav-link" href="/listings">All listings</a>
-        <a class="nav-link" href="/listings/new">Add new listing</a>
+      <a class="nav-link" href="/listings">Explore</a>
+        
       </div>
-
-      <!-- Right side -->
+     <div class="navbar-nav ms-auto">   
+      <form class="d-flex" role="search">
+      <input class="form-control me-2" type="search" placeholder="Search" class="search-inp"/>
+      <button class="btn btn-search" type="submit">
+        <i class="fa-solid fa-magnifying-glass"></i>Search</button>
+    </form>
+    </div>
+      
       <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="/listings/new">Add new listing</a>
         <% if(!curUser) {%>
-        <a class="nav-link" href="/signup">Signup</a>
-        <a class="nav-link" href="/login">Log In</a>
+        <a class="nav-link" href="/signup"><b>Signup</b></a>
+        <a class="nav-link" href="/login"><b>Log In</b></a>
         <% }%> <% if(curUser) {%>
         <a class="nav-link" href="/logout">Log Out</a>
        <% } %>  
