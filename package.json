@@ -1,4 +1,9 @@
 {
+   "engines":{
+      "node":"24.13.1"
+    },
+    
+  
   "name": "air_bnb",
   "version": "1.0.0",
   "description": "",
@@ -14,6 +19,7 @@
     "axios": "^1.14.0",
     "cloudinary": "^1.41.0",
     "connect-flash": "^0.1.1",
+    "connect-mongo": "^6.0.0",
     "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
     "ejs-mate": "^4.0.0",
