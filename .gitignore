@@ -1,2 +1,6 @@
 node_modules/
 .env
+
+# Unrelated reference project (Python) bundled in the working dir
+Login with cookies(1)/
+__MACOSX/

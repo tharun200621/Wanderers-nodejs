@@ -1,8 +1,8 @@
 <% layout("/layouts/boilerplate") %>
-<body>
-    <div class="row mt-3">
-    <div class="col-8 offset-2">
-    <h3>edit your listing</h3>
+    <div class="row mt-4 mb-5">
+    <div class="col-md-8 offset-md-2">
+    <div class="panel">
+    <h3 class="mb-4">Edit your listing</h3>
     <form method="POST" action="/listings/<%=listing._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
     <div class="mb-3"> 
          <label for="title" class="form-label">Title</label>
@@ -18,8 +18,8 @@
     
     
     <div class="mb-3">
-        Original Listing Image
-      <img src="<%=originalImageUrl %>" />
+      <label class="form-label">Original Listing Image</label><br>
+      <img src="<%=originalImageUrl %>" style="border-radius:12px; border:1px solid var(--border);" />
     </div>
 
     <div class="mb-3">
@@ -62,9 +62,18 @@
         class="form-control"
     />
       <div class="invalid-feedback">location must be valid</div>
-  </div> 
-<button class="btn btn-dark edit-btn mt-3">Edit</button>
+  </div>
+  <div class="mb-3">
+    <label for="category" class="form-label">Category</label>
+        <select name="listing[category]" class="form-select">
+            <option value="">Select a category</option>
+            <% for(let c of ["Trending","Rooms","Iconic Cities","Mountains","Castles","Amazing pools","Camping","Farms","Arctic"]){ %>
+            <option value="<%= c %>" <%= listing.category===c ? "selected" : "" %>><%= c %></option>
+            <% } %>
+        </select>
+  </div>
+<button class="btn btn-dark edit-btn mt-3">Save Changes</button>
 </form>
 </div>
 </div>
-</body>
+</div>

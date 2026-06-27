@@ -10,6 +10,12 @@ router.route("/signup")
 .get(userController.renderSignupForm)
 .post( wrapAsync(userController.signup));
 
+router.route("/verify-otp")
+.get(userController.renderVerifyForm)
+.post(wrapAsync(userController.verifyOtp));
+
+router.post("/resend-otp", wrapAsync(userController.resendOtp));
+
 router.route("/login")
 .get( userController.renderLoginForm)
 .post(saveRedirectedUrl,
@@ -17,10 +23,10 @@ router.route("/login")
         failureRedirect: "/login",
         failureFlash: true
     }),
-   userController.login
+   wrapAsync(userController.login)
 );
 
 
-router.get("/logout",userController.logout);
+router.get("/logout",wrapAsync(userController.logout));
 
 module.exports=router;

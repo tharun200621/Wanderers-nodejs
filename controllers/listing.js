@@ -1,7 +1,20 @@
 const Listing = require("../MODELS/list.js");
 module.exports.index=async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs", { allListings });
+    const { q, category } = req.query;
+    const filter = {};
+    if (category) {
+        filter.category = category;
+    }
+    if (q) {
+        const regex = new RegExp(q.trim(), "i");
+        filter.$or = [
+            { title: regex },
+            { location: regex },
+            { country: regex },
+        ];
+    }
+    const allListings = await Listing.find(filter);
+    res.render("listings/index.ejs", { allListings, q: q || "", category: category || "" });
 }
 
 module.exports.renderNewForm= (req, res) => {
@@ -31,25 +44,34 @@ module.exports.showListing=async (req, res) => {
 const axios = require("axios");
 
 module.exports.createListing = async (req, res) => {
-    let url = req.file.path;
-    let filename = req.file.filename;
+    if (!req.file) {
+        req.flash("error", "Please upload an image for your listing.");
+        return res.redirect("/listings/new");
+    }
 
     let newListing = new Listing(req.body.listing);
     newListing.owner = req.user._id;
-    newListing.image = { url, filename };
+    newListing.image = { url: req.file.path, filename: req.file.filename };
 
-    const response = await axios.get(
-        "https://nominatim.openstreetmap.org/search",
-        {
-            params: {
-                q: newListing.location,
-                format: "json"
-            },
-            headers: {
-                "User-Agent": "wanderlust-app"
+    let response;
+    try {
+        response = await axios.get(
+            "https://nominatim.openstreetmap.org/search",
+            {
+                params: {
+                    q: newListing.location,
+                    format: "json"
+                },
+                headers: {
+                    "User-Agent": "wanderlust-app"
+                },
+                timeout: 8000
             }
-        }
-    );
+        );
+    } catch (err) {
+        req.flash("error", "Could not look up that location right now. Please try again.");
+        return res.redirect("/listings/new");
+    }
 
     if (!response.data.length) {
         req.flash("error", "Invalid location");
@@ -88,13 +110,13 @@ module.exports.renderEditForm=async (req, res) => {
 module.exports.updateListing=async (req, res) => {
     let { id } = req.params;
     let listing=await Listing.findByIdAndUpdate(id, req.body.listing, { new: true });
-    if(typeof req.file!= "undefined"){
+    if(typeof req.file !== "undefined"){
+        let url=req.file.path;
         let filename=req.file.filename;
         listing.image={url,filename};
         await listing.save();
-    } 
-    let url=req.file.path;
-    
+    }
+
     req.flash("success", "listing was updated");
 
     res.redirect(`/listings/${id}`);

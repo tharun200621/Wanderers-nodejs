@@ -1,8 +1,35 @@
-const { model } = require("mongoose");
 const Listing=require("./MODELS/list");
 const Review=require("./MODELS/review");
+const User=require("./MODELS/user.js");
 const ExpressError=require("./utils/expressError.js");
 const {listingSchema,reviewSchema}=require("./schema.js");
+const {hashValue}=require("./utils/tokens.js");
+
+module.exports.rememberMe=async (req,res,next)=>{
+    if(req.isAuthenticated() || !req.cookies || !req.cookies.remember_me){
+        return next();
+    }
+    const [userId, token]=req.cookies.remember_me.split(":");
+    if(!userId || !token){
+        res.clearCookie("remember_me");
+        return next();
+    }
+    try{
+        const user=await User.findById(userId);
+        if(!user || !user.rememberTokenHash || !user.rememberTokenExpires
+            || user.rememberTokenExpires < new Date()
+            || user.rememberTokenHash !== hashValue(token)){
+            res.clearCookie("remember_me");
+            return next();
+        }
+        req.login(user,(err)=>{
+            if(err){ return next(err); }
+            next();
+        });
+    }catch(e){
+        next();
+    }
+}
 
 module.exports.isLoggedIn=(req,res,next)=>{
    if(!req.isAuthenticated()){
@@ -36,7 +63,7 @@ module.exports.isReviewAuthor= async (req,res,next)=>{
     let review =await Review.findById(reviewId);
     if(!review.author._id.equals(res.locals.curUser._id)){
         req.flash("error","you are not the author of this review");
-        return res.redirect("/listings/${id}");
+        return res.redirect(`/listings/${id}`);
     }
     next();
 
