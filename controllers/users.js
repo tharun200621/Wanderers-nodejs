@@ -37,6 +37,9 @@ module.exports.signup = async (req, res) => {
         newUser.isVerified = false;
         await User.register(newUser, password);
         req.session.pendingUserId = newUser._id;
+        if (process.env.DEMO_SHOW_OTP === "true") {
+            req.session.demoOtp = otp;
+        }
         sendOtpEmail(email, otp).catch((err) =>
             console.error("[SIGNUP] OTP email failed:", err.message)
         );
@@ -53,7 +56,7 @@ module.exports.renderVerifyForm = (req, res) => {
         req.flash("error", "No pending verification. Please sign up or log in.");
         return res.redirect("/signup");
     }
-    res.render("users/verify.ejs");
+    res.render("users/verify.ejs", { demoOtp: req.session.demoOtp || null });
 };
 
 module.exports.verifyOtp = async (req, res, next) => {
@@ -89,6 +92,7 @@ module.exports.verifyOtp = async (req, res, next) => {
     user.otpAttempts = 0;
     await user.save();
     delete req.session.pendingUserId;
+    delete req.session.demoOtp;
 
     req.login(user, (err) => {
         if (err) return next(err);
@@ -113,6 +117,9 @@ module.exports.resendOtp = async (req, res) => {
     user.otpExpires = otpExpires;
     user.otpAttempts = 0;
     await user.save();
+    if (process.env.DEMO_SHOW_OTP === "true") {
+        req.session.demoOtp = otp;
+    }
     sendOtpEmail(user.email, otp).catch((err) =>
         console.error("[RESEND] OTP email failed:", err.message)
     );

@@ -5,6 +5,12 @@
     <div class="panel">
       <h2 class="mb-1">Verify your email</h2>
       <p class="text-muted mb-4">Enter the 6-digit code we emailed you. It expires in 10 minutes.</p>
+      <% if (typeof demoOtp !== "undefined" && demoOtp) { %>
+        <div class="alert alert-success" role="alert">
+          <strong>Demo mode:</strong> your code is <strong style="letter-spacing:3px;"><%= demoOtp %></strong>
+          <div style="font-size:0.8rem;">(Email delivery can be slow on free hosting — shown here for convenience.)</div>
+        </div>
+      <% } %>
       <form action="/verify-otp" method="POST">
         <div class="mb-4">
           <label for="otp" class="form-label">Verification code</label>
