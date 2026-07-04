@@ -36,9 +36,11 @@ module.exports.signup = async (req, res) => {
         newUser.otpAttempts = 0;
         newUser.isVerified = false;
         await User.register(newUser, password);
-        await sendOtpEmail(email, otp);
         req.session.pendingUserId = newUser._id;
-        req.flash("success", "We sent a verification code to your email.");
+        sendOtpEmail(email, otp).catch((err) =>
+            console.error("[SIGNUP] OTP email failed:", err.message)
+        );
+        req.flash("success", "We sent a verification code to your email. Use 'Resend' if it doesn't arrive.");
         res.redirect("/verify-otp");
     } catch (e) {
         req.flash("error", e.message);
@@ -111,7 +113,9 @@ module.exports.resendOtp = async (req, res) => {
     user.otpExpires = otpExpires;
     user.otpAttempts = 0;
     await user.save();
-    await sendOtpEmail(user.email, otp);
+    sendOtpEmail(user.email, otp).catch((err) =>
+        console.error("[RESEND] OTP email failed:", err.message)
+    );
     req.flash("success", "A new code has been sent to your email.");
     res.redirect("/verify-otp");
 };

@@ -4,14 +4,18 @@ const hasSmtpConfig = process.env.SMTP_EMAIL && process.env.SMTP_APP_PASSWORD;
 
 let transporter = null;
 if (hasSmtpConfig) {
+    const port = Number(process.env.SMTP_PORT) || 465;
     transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || "smtp.gmail.com",
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: false,
+        port,
+        secure: port === 465,
         auth: {
             user: process.env.SMTP_EMAIL,
             pass: process.env.SMTP_APP_PASSWORD
-        }
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000
     });
     transporter.verify((err) => {
         if (err) {
