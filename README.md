@@ -1,8 +1,12 @@
 # Wanderlust 🧭
 
+**🔗 Live demo: [wanderers-xlsn.onrender.com](https://wanderers-xlsn.onrender.com)**
+
 A full-stack accommodation-rental platform inspired by Airbnb, built with the Node.js / Express / MongoDB stack. Users can browse and search stays, filter by category, view interactive maps, create and manage their own listings, and leave reviews — backed by a complete authentication system with email verification and persistent login.
 
 > Built as a portfolio project to demonstrate full-stack web development: server-side rendering, REST-style routing, authentication & authorization, third-party API integration, and cloud deployment.
+
+> ⏳ Hosted on Render's free tier — the first request after inactivity may take ~30–50s to wake the server.
 
 ---
 
